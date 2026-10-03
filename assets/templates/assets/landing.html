@@ -1,0 +1,8 @@
+{% extends 'assets/base.html' %}
+{% block title %}Welcome{% endblock %}
+{% block page_label %}Welcome{% endblock %}
+{% block content %}
+<section class="landing-hero"><p class="eyebrow" style="color:#83cfc0">Asset operations workspace</p><h1>Know what you have.<br>Know who has it.</h1><p>A clear working record for company equipment, employee assignments, returns, and custody history.</p><a class="button button-primary" href="{% url 'account_login' %}">Sign in to workspace <span aria-hidden="true">→</span></a></section>
+<section class="landing-features" aria-label="Workspace capabilities"><article class="feature-card"><span class="feature-icon" aria-hidden="true">♙</span><h2>Employee overview</h2><p>Review active employees and their equipment coverage in one place.</p></article><article class="feature-card"><span class="feature-icon" aria-hidden="true">◇</span><h2>Asset register</h2><p>Track each asset’s category, unique identifier, and current holder.</p></article><article class="feature-card"><span class="feature-icon" aria-hidden="true">↶</span><h2>Custody history</h2><p>See recorded assignments and returns, including the actor and event time when available.</p></article></section>
+<p class="muted-note landing-note">For authorized staff use. Sign in with an account provided by your administrator.</p>
+{% endblock %}

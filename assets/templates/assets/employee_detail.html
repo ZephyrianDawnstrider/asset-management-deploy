@@ -1,0 +1,35 @@
+{% extends 'assets/base.html' %}
+{% load static %}
+{% block title %}{{ employee.name }}{% endblock %}
+{% block page_label %}Employee record{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">Employee record</p><h1>{{ employee.name }}</h1><p>{{ employee.department }} · {{ employee.designation }}</p></div><div class="heading-actions"><a class="button button-secondary" href="{% url 'employee_update' employee.pk %}">Edit employee</a><a class="button button-secondary" href="{% url 'employee_overview' %}">Back to overview</a></div></div>
+<div class="detail-grid">
+  <div class="detail-main">
+    <section class="card" aria-labelledby="profile-title">
+      <div class="profile-panel"><div class="profile-avatar" aria-hidden="true">{{ employee.name|slice:":1"|upper }}</div><div><h2 id="profile-title">{{ employee.name }}</h2><p>{{ employee.employee_id }} <span aria-hidden="true">·</span> {{ employee.department }}</p></div></div>
+      <div class="profile-facts"><div><span>Designation</span><strong>{{ employee.designation }}</strong></div><div><span>Start date</span><strong>{{ employee.start_date|date:"M j, Y" }}</strong></div><div><span>Record status</span><strong>{% if employee.is_active %}Active{% else %}Inactive{% endif %}</strong></div></div>
+    </section>
+    <section class="card section-gap" aria-labelledby="equipment-title">
+      <div class="card-header"><div><h2 id="equipment-title">Assigned equipment</h2><p>Return an item before assigning it to another employee.</p></div><span class="pill pill-green">{{ assigned_assets|length }} active</span></div>
+      <div class="table-wrap"><table><thead><tr><th scope="col">Asset</th><th scope="col">Category</th><th scope="col">Identifier</th><th scope="col">Action</th></tr></thead><tbody>
+        {% for asset in assigned_assets %}<tr><td><strong class="cell-strong">{{ asset.asset_name }}</strong><small class="subtle">{{ asset.details|default:"No additional details" }}</small></td><td>{{ asset.asset_type.name }}</td><td><code>{{ asset.unique_identifier }}</code></td><td><form method="post" action="{% url 'unassign_asset' asset.pk %}" class="js-assignment-action" data-success="Equipment returned to the available pool.">{% csrf_token %}<input type="hidden" name="expected_employee_id" value="{{ asset.assigned_to.pk }}"><button class="button button-danger button-small" type="submit">Return asset</button><p class="action-feedback" aria-live="polite"></p></form></td></tr>
+        {% empty %}<tr><td colspan="4" class="empty-state"><strong>No equipment assigned</strong>Use the form below to assign an available asset.</td></tr>{% endfor %}
+      </tbody></table></div>
+    </section>
+    <section class="card section-gap" aria-labelledby="assign-title">
+      <div class="card-header"><div><h2 id="assign-title">Assign available equipment</h2><p>Only active, unassigned assets can be selected.</p></div></div>
+      <div class="card-body"><form method="post" action="{% url 'assign_asset_to_employee' %}" class="js-assignment-action" data-success="Asset assigned to {{ employee.name }}.">
+        {% csrf_token %}<input type="hidden" name="employee_id" value="{{ employee.employee_id }}">
+        <div class="field"><label for="asset_id">Available asset</label><select id="asset_id" name="asset_id" required><option value="">Choose an asset…</option>{% for asset in available_assets %}<option value="{{ asset.pk }}">{{ asset.asset_type.name }} · {{ asset.asset_name }} ({{ asset.unique_identifier }})</option>{% endfor %}</select><p class="field-help">To move an item between people, return it from its current record first, then assign it here.</p></div>
+        <p class="action-feedback" aria-live="polite"></p><div class="form-footer"><button class="button button-primary" type="submit"{% if not available_assets %} disabled{% endif %}>Assign asset</button></div>
+      </form>{% if not available_assets %}<p class="muted-note">No available assets. <a href="{% url 'asset_assign' %}">Add an asset</a> to the register first.</p>{% endif %}</div>
+    </section>
+  </div>
+  <aside class="card" aria-labelledby="history-title"><div class="card-header"><div><h2 id="history-title">Assignment history</h2><p>Recorded custody changes for this employee.</p></div>{% if history_page %}<span class="pill pill-gray">{{ history_page.paginator.count }} events</span>{% endif %}</div><div class="history-list">
+    {% for event in assignment_history %}<article class="history-item"><span class="history-icon" aria-hidden="true">{% if event.action == 'returned' %}↶{% else %}↗{% endif %}</span><div><p><strong>{{ event.get_action_display }}</strong> · {{ event.asset.asset_name }}<span class="subtle">{{ event.asset.unique_identifier }}</span></p><small>{% if event.occurred_at %}{{ event.occurred_at|date:"M j, Y · H:i" }}{% else %}<span class="history-old-time">Historical assignment; original date not recorded.</span>{% endif %}{% if event.actor %} · by {{ event.actor.get_username }}{% endif %}</small></div></article>
+    {% empty %}<div class="empty-state"><strong>No history recorded</strong>Future assignment and return actions will appear here.</div>{% endfor %}
+  </div>{% if history_page.has_other_pages %}<nav class="pagination history-pagination" aria-label="Assignment history pages"><span class="pagination-status">Page {{ history_page.number }} of {{ history_page.paginator.num_pages }}</span><div class="pagination-actions">{% if history_page.has_previous %}<a class="button button-secondary" rel="prev" href="?{% if history_page_query %}{{ history_page_query }}&{% endif %}history_page={{ history_page.previous_page_number }}#history-title">Previous</a>{% else %}<span class="button button-secondary is-disabled" aria-disabled="true">Previous</span>{% endif %}{% if history_page.has_next %}<a class="button button-secondary" rel="next" href="?{% if history_page_query %}{{ history_page_query }}&{% endif %}history_page={{ history_page.next_page_number }}#history-title">Next</a>{% else %}<span class="button button-secondary is-disabled" aria-disabled="true">Next</span>{% endif %}</div></nav>{% endif %}</aside>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{% static 'assets/js/assignments.js' %}" defer></script>{% endblock %}

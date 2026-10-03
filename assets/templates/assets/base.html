@@ -1,0 +1,51 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10253f">
+  <title>{% block title %}Overview{% endblock %} · Fieldnote Assets</title>
+  <link rel="stylesheet" href="{% static 'assets/css/app.css' %}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Main navigation">
+      <a class="brand" href="{% url 'home' %}" aria-label="Fieldnote Assets home">
+        <span class="brand-mark" aria-hidden="true">F</span>
+        <span><strong>Fieldnote</strong><small>ASSET OPERATIONS</small></span>
+      </a>
+      {% if request.user.is_authenticated %}
+      <div class="nav-caption">WORKSPACE</div>
+      <nav class="nav-list">
+        <a href="{% url 'employee_overview' %}" class="nav-link{% if request.resolver_match.url_name == 'employee_overview' %} is-current{% endif %}"><span class="nav-icon" aria-hidden="true">▦</span> Overview</a>
+        <a href="{% url 'employee_list' %}" class="nav-link{% if request.resolver_match.url_name == 'employee_list' or request.resolver_match.url_name == 'employee_create' or request.resolver_match.url_name == 'employee_update' %} is-current{% endif %}"><span class="nav-icon" aria-hidden="true">♙</span> Employees</a>
+        <a href="{% url 'asset_list' %}" class="nav-link{% if request.resolver_match.url_name == 'asset_list' %} is-current{% endif %}"><span class="nav-icon" aria-hidden="true">◇</span> Asset register</a>
+        <a href="{% url 'asset_assign' %}" class="nav-link{% if request.resolver_match.url_name == 'asset_assign' %} is-current{% endif %}"><span class="nav-icon" aria-hidden="true">⇄</span> Add an asset</a>
+        <a href="{% url 'assettype_list' %}" class="nav-link{% if request.resolver_match.url_name == 'assettype_list' or request.resolver_match.url_name == 'assettype_create' or request.resolver_match.url_name == 'assettype_update' %} is-current{% endif %}"><span class="nav-icon" aria-hidden="true">⌑</span> Asset types</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="user-chip"><span class="avatar" aria-hidden="true">{{ request.user.get_username|slice:":1"|upper }}</span><span class="user-copy"><strong>{{ request.user.get_username }}</strong><small>Staff workspace</small></span></div>
+        <form method="post" action="{% url 'account_logout' %}">{% csrf_token %}<button class="nav-link logout-link" type="submit"><span class="nav-icon" aria-hidden="true">↗</span> Sign out</button></form>
+      </div>
+      {% else %}
+      <div class="sidebar-note"><span class="status-dot"></span> Internal asset workspace</div>
+      {% endif %}
+    </aside>
+    <div class="main-column">
+      <header class="topbar">
+        <div class="breadcrumbs"><span>Workspace</span><span aria-hidden="true">/</span><strong>{% block page_label %}Overview{% endblock %}</strong></div>
+        <div class="topbar-note"><span class="status-dot"></span> Inventory workspace</div>
+      </header>
+      <main id="main-content" class="page-content" tabindex="-1">
+        {% if messages %}<div class="flash-stack" aria-live="polite">{% for message in messages %}<div class="flash-message{% if message.tags %} flash-{{ message.tags }}{% endif %}">{{ message }}</div>{% endfor %}</div>{% endif %}
+        {% block content %}{% endblock %}
+      </main>
+      <footer class="footer">Fieldnote Assets <span>·</span> Internal operations</footer>
+    </div>
+  </div>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

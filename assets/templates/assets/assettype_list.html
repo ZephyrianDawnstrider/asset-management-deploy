@@ -1,0 +1,10 @@
+{% extends 'assets/base.html' %}
+{% block title %}Asset types{% endblock %}
+{% block page_label %}Asset types{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">Inventory configuration</p><h1>Asset types</h1><p>Define categories and the identifier label people should capture for each one.</p></div><a class="button button-primary" href="{% url 'assettype_create' %}">+ Add asset type</a></div>
+<section class="card"><div class="table-wrap"><table><thead><tr><th scope="col">Category</th><th scope="col">Identifier label</th><th scope="col">Description</th><th scope="col">Actions</th></tr></thead><tbody>
+{% for asset_type in asset_types %}<tr><td><strong class="cell-strong">{{ asset_type.name }}</strong></td><td>{{ asset_type.identification_type_label }}</td><td>{{ asset_type.object_description }}</td><td><div class="table-actions"><a class="button button-secondary button-small" href="{% url 'assettype_update' asset_type.pk %}">Edit</a><form method="post" action="{% url 'assettype_soft_delete' asset_type.pk %}" onsubmit="return confirm('Deactivate this asset type? Existing assets and history are retained.')">{% csrf_token %}<button class="button button-danger button-small" type="submit">Deactivate</button></form></div></td></tr>
+{% empty %}<tr><td colspan="4" class="empty-state"><strong>No asset types yet</strong>Create a category before adding equipment.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}

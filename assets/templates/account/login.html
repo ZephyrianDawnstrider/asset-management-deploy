@@ -1,0 +1,12 @@
+{% extends 'assets/base.html' %}
+{% block title %}Sign in{% endblock %}
+{% block page_label %}Sign in{% endblock %}
+{% block content %}
+<div class="login-wrap"><div class="login-brand"><span class="brand-mark" aria-hidden="true">F</span><h1>Welcome back</h1><p>Sign in to the Fieldnote Assets workspace.</p></div><section class="card"><div class="card-body"><form method="post" action="{% url 'account_login' %}" class="login-form">{% csrf_token %}
+  {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+  {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+  {% for field in form.visible_fields %}<div class="field"><label for="{{ field.id_for_label }}">{% if field.name == 'login' %}Email or username{% else %}{{ field.label }}{% endif %}</label>{{ field }}{% if field.errors %}<div class="form-errors">{{ field.errors }}</div>{% endif %}</div>{% endfor %}
+  <button class="button button-primary login-submit" type="submit">Sign in</button>
+  {% if request.GET.next %}<input type="hidden" name="next" value="{{ request.GET.next }}">{% endif %}
+</form></div></section><p class="login-footnote">Authorized staff accounts only. Contact your administrator if you need access.</p></div>
+{% endblock %}
